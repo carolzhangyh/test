@@ -1,0 +1,154 @@
+---
+title: "stat350 A6"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+###### Q 1######
+##a
+```{r}
+setwd("C:/Users/carol/Desktop/stat350")
+prestige <- read.csv("prestige.csv")
+
+lm <- lm(prestige ~ education+income+type, data=prestige)
+summary(lm)
+anova(lm)
+
+
+reduce_type <- lm(prestige ~ education+income, data=prestige)
+anova(reduce_type, lm) #p-value 1.208e-06 is small, "type" is good
+
+reduce_income <- lm(prestige ~ education+type, data=prestige)
+anova(reduce_income, lm) #p-value 5.124e-08 is small, "income" is good
+
+reduce_education <- lm(prestige ~ income+type, data=prestige)
+anova(reduce_education,lm) #p-value 0.004164 is small, "education" is good
+
+```
+#Ho: B1=B2=B3=0
+#Ha: at least one of those factors is not equal to 0.
+#p-value: < 2.2e-16
+#Conclution: reject Ho. all of three factors are significant.
+
+
+##b
+```{r}
+plot(lm, which=c(1,2,5))
+prestige[c(6,28,33),]
+```
+##6(minister),28(machinist),33(motorman) are outliers. obviously differential
+##17, 27 only have high leverage, but small coke distance.Therefore, we can classify them as not differential.
+
+
+##c
+```{r}
+install.packages("MASS")
+library(MASS)
+rr.lm <- rlm(prestige~education+income+type,  data=prestige,psi=psi.huber)
+summary(rr.lm)
+rr.lm$w
+```
+
+#Yes. They are all significant.
+
+##d
+```{r}
+rr.lm$w
+plot(rr.lm$w, col=6,ylab="weights")
+
+which(rr.lm$w == min(rr.lm$w))
+prestige$X[6]
+```
+#Minister(6-th) is the smallest.
+
+
+
+###### Q2 ######
+
+###a
+```{r}
+setwd("C:/Users/carol/Desktop/stat350")
+assign6 <- read.csv("assignment6.csv")
+lm_Q2 <- lm(y~x, data=assign6)
+summary(lm_Q2)$coef
+
+```
+#y= 49.85x -9.07
+
+###b
+```{r}
+plot(lm_Q2, which=c(1,2,5))
+```
+
+##It is uncomfortable as there are many outliers shown by residual plot. The distribution is not normal shown by QQ plot, and there are some variables with large coke's distance.
+
+###c
+```{r}
+install.packages("MASS")
+library(MASS)
+rr.lmQ2 <- rlm(y~x, data=assign6, psi=psi.huber)
+rr.lmQ2
+```
+#y=69.74x -2.95
+
+###d
+```{r}
+plot(assign6$x,assign6$y, col="grey", xlab="x",ylab="y", main="")
+abline(lm_Q2, col="green")
+abline(rr.lmQ2,col="purple")
+```
+## The purple line (robest regression) is better.
+
+
+###e
+```{r}
+install.packages("MASS")
+library(MASS)
+index= sample.int(1050, size=1050, replace=TRUE)
+rlm(y~x, psi=psi.huber, data=assign6[index,])$coef[2]
+
+slope<- NULL
+
+set.seed(666)
+for(i in 1:1000){
+  index = sample.int(1050, size=1050, replace=TRUE)
+  slope[i]= rlm(y~x, psi=psi.huber,data=assign6[index,])$coef[2]
+}
+
+hist(slope, col="dark green")
+```
+#estimated slope is 70.
+
+###f
+```{r}
+quantile(slope, probs=c(0.025,0.975))
+```
+#The CI is (67.3,71.7)
+
+###g
+#H0:slope=0
+#Ha: slope is not equal to 0
+#95% CI(67.3, 71.7) does not contain zero, so reject H0. Therefore, we can conslude that the slope is different than zero at 0.5% significant level.

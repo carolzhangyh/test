@@ -1,0 +1,68 @@
+---
+title: "Untitled"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+setwd("C:/Users/carol/Desktop/stat350")
+grasses <- read.csv("grasses.csv")
+summary(grasses)
+str(grasses)
+fit <- lm(yield~factor(method),data=grasses)
+summary(fit)
+```
+
+```{r}
+status <- read.csv("status.csv")
+str(status)
+fit2 <- lm(score~status, data=status)
+summary(fit2)
+```
+##Q8
+```{r}
+quizdata <- read.csv("status.csv")
+fit2 <- lm(score~status, data=quizdata)
+summary(fit2)
+set.seed(123) # YOU NEED TO SET THE SEED TO GET THE CORRECT TRAINING SAMPLE
+nsamp = ceiling(0.6*length(quizdata$status)) # samples
+training_samps = sample(c(1:length(quizdata$status)),nsamp)#sampled cases
+train_data <- quizdata[training_samps, ]   # THIS IS THE TRAINING DATA
+```
+
+```{r}
+train <- lm(score~status, data=train_data)
+summary(train)
+```
+
+```{r}
+test_data<- quizdata[-training_samps, ]
+yhat <- predict(train,newdata=test_data)
+y <- test_data$score 
+percentage_error <- 100*abs(y-yhat)/y
+mean(percentage_error)
+```
+

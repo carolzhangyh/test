@@ -1,0 +1,185 @@
+#Q2
+
+
+
+```{r}
+library(car)
+```
+
+
+```{r}
+df1 = read.csv("assign4_i.csv")
+df2 = read.csv("assign4_ii.csv")
+```
+
+
+
+
+## a.
+
+```{r}
+head(df1)
+x1 = df1$x1
+x2 = df1$x2
+y = df1$y
+
+sqs11<-sqrt(sum((x1-mean(x1))^2))
+sqs22<-sqrt(sum((x2-mean(x2))^2))
+sqsyy<-sqrt(sum((y-mean(y))^2))
+
+#no compute the unit length scaling
+z1<-(x1-mean(x1))/sqs11
+z2<-(x2-mean(x2))/sqs22
+zy<-(y-mean(y))/sqsyy
+```
+
+
+```{r}
+fit1 =  lm(zy~z1 + z2) 
+fit1
+```
+
+
+##b.
+```{r}
+round(vcov(fit1),5)
+```
+
+independent. because the covariance are all zero. 
+
+```{r}
+vif(fit1)
+
+#cor(df1$x1,df1$x2)
+```
+
+
+#d.
+
+```{r}
+head(df2)
+x1 = df2$x1
+x2 = df2$x2
+y = df2$y
+
+sqs11<-sqrt(sum((x1-mean(x1))^2))
+sqs22<-sqrt(sum((x2-mean(x2))^2))
+sqsyy<-sqrt(sum((y-mean(y))^2))
+
+#no compute the unit length scaling
+z1<-(x1-mean(x1))/sqs11
+z2<-(x2-mean(x2))/sqs22
+zy<-(y-mean(y))/sqsyy
+
+fit2 =  lm(zy~z1 + z2) 
+fit2
+```
+
+## e. 
+
+```{r}
+round(vcov(fit2),5)
+```
+
+no. $cov(\hat{\beta_1}, \hat{\beta_2}) \neq 0$
+
+
+## f. 
+
+```{r}
+vif(fit2)
+```
+
+
+## g.
+
+prefer the first one which has no multicollinearity issue. Therefore the variance the betahat would be smaller. 
+
+
+# Q3.
+
+
+
+
+# Q4.
+
+## a.
+
+```{r}
+df3 = read.csv("guinea_pig.csv")[,-1]
+tail(df3)
+pairs(df3)
+```
+
+
+## b.
+
+```{r}
+fit3 = lm(y~., data=df3)
+summary(fit3)
+```
+
+## c.
+
+```{r}
+plot(fit3, 1)
+plot(fitted(fit3),rstudent(fit3),main="residual plot", ylab="studentaized residual")
+abline(h=0)
+```
+
+
+## d. 
+
+```{r}
+nrow(df3)
+X<-cbind(rep(1,nrow(df3)), df3[,1],df3[,2],df3[,3])
+
+hii<-diag(X%*%solve(t(X)%*%X)%*%t(X))
+hii
+# Identify points of high Leverage
+p<-ncol(X) # number of betas in the model (beta0,beta1,beta2)
+n<-nrow(X) # number of observations
+which(hii>2*p/n) #points with high leverage
+
+```
+
+
+## e.
+```{r}
+influence.measures(fit3)
+plot(fit3, 5)
+```
+
+no cook's distance larger than one.
+
+the 3rd obs has large leverage and cook's distance it has relative large impact on the regression coef.
+
+
+## f.
+
+```{r}
+vif(fit3)
+```
+
+Yes, the vif of bodywt and does is larger than 10.
+
+## g. 
+
+```{r}
+fit4 = lm(y~., data=df3[-3,])
+summary(fit4)
+vif(fit4)
+```
+All the p-value is larger than 0.05, indicating no independent variable have significant linear relationship with the response variabl. this is because of the multicollinearity increse the standard error of the beata hats, therefore reduce the t-test and increase the p-value leading to non-significant result.
+
+
+```{r}
+anova(fit4)
+```
+
+
+there is no significant relation between those independent variables and y. 
+
+
+
+

@@ -1,0 +1,255 @@
+
+---
+
+# Q1:
+
+```{r}
+
+setwd("C:/Users/carol/Desktop/stat350")
+cement <- read.csv("cement.csv")[,-1]
+cement
+```
+
+#### a.
+
+```{r}
+n = nrow(cement)
+qt(0.95,n-2)
+
+m0 <- lm(y ~ 1, data=cement)
+
+summary(lm(y ~ x1, data=cement))$coef[2,3] 
+summary(lm(y ~ x2, data=cement))$coef[2,3]
+summary(lm(y ~ x3, data=cement))$coef[2,3]
+summary(lm(y ~ x4, data=cement))$coef[2,3]
+summary(lm(y ~ x5, data=cement))$coef[2,3]  
+# the absolute value of the t-value between y and x5 is the biggest, so can add x5.
+
+
+
+
+m1 <- lm(y ~ x5, data=cement)
+
+summary(lm(resid(m1) ~ x1, data=cement))$coef[2,3] 
+summary(lm(resid(m1) ~ x2, data=cement))$coef[2,3]
+summary(lm(resid(m1) ~ x3, data=cement))$coef[2,3]
+summary(lm(resid(m1) ~ x4, data=cement))$coef[2,3]
+# the absolute value of the t-value between residue of m1 and x1 is the biggest, so add add x1
+
+
+                            
+m2 <- lm(y ~ x5 + x1, data=cement)
+
+summary(lm(resid(m2) ~ x2, data=cement))$coef[2,3]
+summary(lm(resid(m2) ~ x3, data=cement))$coef[2,3]
+summary(lm(resid(m2) ~ x4, data=cement))$coef[2,3]
+# the absolute values of the t-value in this step are smaller tha the cut off value, so do not use x2, x3,and x4.
+
+
+
+```
+Therefore, we add x1 and x5 according to the result we got from above code. 
+The final model should include only x1 and x5. y ~ x5 +x1
+
+
+#### b.
+
+```{r}
+m5 <- lm(y ~ ., data=cement)
+summary(m5)
+qt(0.95,n-2)
+
+e_1 = resid(lm(y ~ .-x1, data=cement))
+summary(lm(e_1~cement$x1))$coef[2,3]  
+
+e_2 = resid(lm(y ~ .-x2, data=cement))
+summary(lm(e_2~cement$x2))$coef[2,3]
+
+e_3 = resid(lm(y ~ .-x3, data=cement))
+summary(lm(e_3~cement$x3))$coef[2,3]  
+
+e_4 = resid(lm(y ~ .-x4, data=cement))
+summary(lm(e_4~cement$x4))$coef[2,3]  #the absolute value of the t-value of x4 is the smallest, so remove x4.
+
+e_5 = resid(lm(y ~ .-x5, data=cement))
+summary(lm(e_5~cement$x5))$coef[2,3]  
+
+
+m4<- lm(y ~ .-x4, data=cement)
+e_41 = resid(lm(y ~ .-x4-x1, data=cement))
+summary(lm(e_41~cement$x1))$coef[2,3]  
+
+e_42 = resid(lm(y ~ .-x4-x2, data=cement))
+summary(lm(e_42~cement$x2))$coef[2,3]  
+
+e_43 = resid(lm(y ~ .-x4-x3, data=cement))
+summary(lm(e_43~cement$x3))$coef[2,3]  #the absolute value of the t-value of x4 is the smallest, so remove x3 
+
+
+e_45 = resid(lm(y ~ .-x4-x5, data=cement))
+summary(lm(e_45~cement$x5))$coef[2,3]  
+
+
+m3<- lm(y ~ .-x4-x3, data=cement)
+e_31 = resid(lm(y ~ .-x4-x3-x1, data=cement))
+summary(lm(e_31~cement$x1))$coef[2,3]  
+
+e_32 = resid(lm(y ~ .-x4-x3-x2, data=cement))
+summary(lm(e_32~cement$x2))$coef[2,3]  
+
+e_33 = resid(lm(y ~ .-x4-x3-x5, data=cement))
+summary(lm(e_33~cement$x5))$coef[2,3]  #the absolute value of the t-value of x4 is the smallest, so remove x5
+
+
+m2<- lm(y ~ .-x4-x3-x5, data=cement)
+e_21 = resid(lm(y ~ .-x4-x3-x5-x1, data=cement))
+summary(lm(e_21~cement$x1))$coef[2,3]  
+
+e_22 = resid(lm(y ~ .-x4-x3-x5-x2, data=cement))
+summary(lm(e_22~cement$x2))$coef[2,3]  
+
+
+
+##the absolute value of the t-value of x1 and x2are bigger than qt, so keep x1 and x2.
+```
+Therefore, we keep x1 and x2 according to the result we got from above code. 
+The final model should include only x1 and x2. y ~ x2 +x1
+
+```{r}
+fullmodel <- lm(y~., data = na.omit(cement))
+step(fullmodel, direction = "backward", trace=FALSE ) 
+```
+
+
+
+#### c.
+```{r}
+install.packages("car")
+library(car)
+
+summary(lm(y ~ x4+x5, data=cement))
+vif(lm(y ~ x4+x5, data=cement))
+```
+
+There is a strong multicollinearity between x4 and x5, which leads to large SE of slope for x4, x5. Therefore, the t statistic between x4 and x5 would be smaller and p-value would be larger. 
+
+
+#### d.
+```{r}
+m5 <- lm(y ~ ., data=cement)
+summary(m5)
+qt(0.95,n-2)
+
+e_1 = resid(lm(y ~ .-x1, data=cement))
+summary(lm(e_1~cement$x1))$coef[2,3]  
+e_2 = resid(lm(y ~ .-x2, data=cement))
+summary(lm(e_2~cement$x2))$coef[2,3]
+e_3 = resid(lm(y ~ .-x3, data=cement))
+summary(lm(e_3~cement$x3))$coef[2,3]  
+e_4 = resid(lm(y ~ .-x4, data=cement))
+summary(lm(e_4~cement$x4))$coef[2,3]  #the absolute value of the t-value of x4 is the smallest, so remove x4.
+e_5 = resid(lm(y ~ .-x5, data=cement))
+summary(lm(e_5~cement$x5))$coef[2,3]  
+
+
+m4<- lm(y ~ .-x4, data=cement)
+e_41 = resid(lm(y ~ .-x4-x1, data=cement))
+summary(lm(e_41~cement$x1))$coef[2,3]  
+e_42 = resid(lm(y ~ .-x4-x2, data=cement))
+summary(lm(e_42~cement$x2))$coef[2,3]  
+e_43 = resid(lm(y ~ .-x4-x3, data=cement))
+summary(lm(e_43~cement$x3))$coef[2,3]  #the absolute value of the t-value of x4 is the smallest, so remove x3 
+e_45 = resid(lm(y ~ .-x4-x5, data=cement))
+summary(lm(e_45~cement$x5))$coef[2,3]  
+
+
+check1 <- lm(y~. -x4, data=cement)
+summary(lm(resid(check1)~.,data=cement))$coef[2,3]  #not add x4
+
+
+m3<- lm(y ~ .-x4-x3, data=cement)
+e_31 = resid(lm(y ~ .-x4-x3-x1, data=cement))
+summary(lm(e_31~cement$x1))$coef[2,3]  
+e_32 = resid(lm(y ~ .-x4-x3-x2, data=cement))
+summary(lm(e_32~cement$x2))$coef[2,3]  
+e_33 = resid(lm(y ~ .-x4-x3-x5, data=cement))
+summary(lm(e_33~cement$x5))$coef[2,3]  #the absolute value of the t-value of x4 is the smallest, so remove x5
+
+
+check2 <- lm(y~. -x4-x3, data=cement)
+summary(lm(resid(check2)~ x4,data=cement))$coef[2,3]  #not add x4
+summary(lm(resid(check2)~ x3,data=cement))$coef[2,3]  #not add x3
+
+
+m2<- lm(y ~ .-x4-x3-x5, data=cement)
+e_21 = resid(lm(y ~ .-x4-x3-x5-x1, data=cement))
+summary(lm(e_21~cement$x1))$coef[2,3]  
+e_22 = resid(lm(y ~ .-x4-x3-x5-x2, data=cement))
+summary(lm(e_22~cement$x2))$coef[2,3]  
+
+
+##the absolute value of the t-value of x1 and x2are bigger than qt, so keep x1 and x2.
+check3 <- lm(y ~. -x4-x3-x5,  data=cement)
+summary(lm(resid(check3)~ x4,data=cement))$coef[2,3] #not add x3
+summary(lm(resid(check3)~ x3,data=cement))$coef[2,3] #not add x4
+summary(lm(resid(check3)~ x5,data=cement))$coef[2,3] #not add x5
+```
+
+
+
+
+
+
+
+
+#### e.
+
+```{r}
+AIC(lm(y ~ x5 + x1, data=cement))
+AIC(lm(y ~ x1 + x2, data=cement))
+AIC(lm(y ~ x1 + x2, data=cement)) 
+```
+
+
+
+# Q3
+
+```{r}
+setwd("C:/Users/carol/Desktop/stat350")
+reactor <- read.csv("reactor.csv")[,-1]
+
+head(reactor)
+
+install.packages("leaps")
+library(leaps)
+
+regsubsets.out <-
+    regsubsets(y ~ .,
+               data = reactor,
+               nbest = 1,       
+               nvmax = 4)
+regsubsets.out
+summary.out <- summary(regsubsets.out)
+as.data.frame(summary.out$outmat)
+
+
+plot(regsubsets.out, scale = "Cp", main = "Cp")
+names(summary.out)
+summary.out$rsq
+
+msres <-  summary.out$rss/(28-2:5)
+msres
+
+summary.out$cp
+out <- data.frame(p = 2:5, rsq = summary.out$rsq, msres = msres, cp=summary.out$cp )
+
+plot(x=out$p,y=out$rsq, type = "o", main = "p V.S. R-squared") ##a
+plot(x=out$p,y=out$msres, type = "o", main = "p V.S. MSRES") ##b
+plot(x=out$p,y=out$cp, type = "o", main = "p V.S. Cp")  ##c
+
+```
+
+a. R-square can not be used to determine which is best model as R^2 is increasing continuously.
+b. form the table p V.S. MSRES,  p=4 (k=3) is the best, as when p=4, Msres=3.862218e-08, which is the smallest value of Msres.
+c. From the table p V.S. Cp, cp p=4 is the best, as at p=4. Cp=0.556, which is the minimum value of cp.
+

@@ -1,0 +1,97 @@
+
+```{r}
+df <- read.table("data.txt", header = F)
+df <- df[,-1]
+colnames(df) <- c("eruptions","waiting")
+df
+```
+```{r}
+df <- read.csv("geyser.csv")
+df
+```
+
+
+
+
+
+###a)
+```{r}
+hist(df$waiting, main="Histogram of Length of intervals", xlab="Length of Intervals", col=3)
+```
+
+
+It is not faithful and is not reliable as there are two peaks.
+
+
+###b)
+```{r}
+mean(df$waiting)
+sd(df$waiting)
+```
+
+No, I would not use these to describe the data.
+
+
+c)
+```{r}
+less_than_3 = df[df$eruptions <= 3,]
+more_than_3 = df[df$eruptions > 3,]
+hist(less_than_3$waiting, xlab="length of interval", main="intervals had eruptions for 3 mins or less", col=3)
+hist(more_than_3$waiting, xlab="length of interval", main="intervals had eruption for more than 3 mins", col=7)
+```
+
+example, if previous eruption is 3 minutes or less: 
+```{r}
+mean(less_than_3$waiting, )
+sd(less_than_3$waiting, )
+mean(less_than_3$waiting) +c(-1,1)*sd(less_than_3$waiting)     
+mean(less_than_3$waiting) +2*c(-1,1)*sd(less_than_3$waiting)
+mean(less_than_3$waiting) +3*c(-1,1)*sd(less_than_3$waiting)
+```
+
+
+
+
+```{r}
+library(dbplyr)
+
+# df %>%  filter(eruptions <= 3) %>% hist(waiting)
+  
+```
+
+
+
+d)
+
+```{r}
+plot(df$waiting~df$eruptions, main="scatterplot of waiting time and eruption", xlab="Length of Eruptions",ylab="Length of Interval", col=2)
+```
+
+Yes.
+
+
+e)
+
+```{r}
+fit <- lm(waiting~eruptions, data = df)
+summary(fit)
+```
+```{r}
+plot(df$waiting~df$eruptions, main="scattorplot and regression line of internal time and eruption", xlab="Length of Eruptions",ylab="Length of Interval", col=8)
+abline(fit,col="red")
+```
+
+
+f)
+
+```{r}
+33.4744+ 2* 10.7296 
+```
+
+```{r}
+newdata = data.frame(eruptions=2)
+predict(fit,newdata)
+```
+
+
+
